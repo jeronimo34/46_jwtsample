@@ -4,11 +4,18 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "start": "node server",
+    "dev": "nodemon server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "typescript": "^4.6.3"
+    "date-fns": "^2.28.0",
+    "typescript": "^4.6.3",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }

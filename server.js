@@ -1,101 +1,99 @@
-const fsPromises = require("fs").promises;
+const http = require("http");
 const path = require("path");
+const fs = require("fs");
+const fsPromises = require("fs").promises;
 
-const fileOps = async () => {
+const logEvents = require("./logEvents");
+const EventEmitter = require("events");
+class Emitter extends EventEmitter {}
+const myEmitter = new Emitter();
+myEmitter.on("log", (msg, fileName) => logEvents(msg, fileName));
+const PORT = process.env.PORT || 3500;
+
+const serveFile = async (filePath, contentType, response) => {
   try {
-    const data = await fsPromises.readFile(
-      path.join(__dirname, "files", "starter.txt"),
-      "utf8"
+    const rawData = await fsPromises.readFile(
+      filePath,
+      !contentType.includes("image") ? "utf8" : ""
     );
-    console.log(data);
+    const data =
+      contentType === "application/json" ? JSON.parse(rawData) : rawData;
 
-    // ファイル削除
-    await fsPromises.unlink(path.join(__dirname, "files", "starter.txt"));
-
-    await fsPromises.writeFile(
-      path.join(__dirname, "files", "PromiseWrite.txt"),
-      data
+    response.writeHead(200, { "Content-Type": contentType });
+    response.end(
+      contentType === "application/json" ? JSON.stringify(data) : data
     );
-    await fsPromises.appendFile(
-      path.join(__dirname, "files", "PromiseWrite.txt"),
-      "\n\nNice to meet you."
-    );
-    await fsPromises.rename(
-      path.join(__dirname, "files", "PromiseWrite.txt"),
-      path.join(__dirname, "files", "promiseComplete.txt")
-    );
-    const newData = await fsPromises.readFile(
-      path.join(__dirname, "files", "promiseComplete.txt"),
-      "utf8"
-    );
-    console.log(newData);
   } catch (err) {
     console.log(err);
+    myEmitter.emit("log", `${err.name}: ${err.message}`, "errLog.txt");
+
+    response.statusCode = 500;
+    response.end();
   }
 };
+const server = http.createServer((req, res) => {
+  console.log(req.url, req.method);
+  myEmitter.emit("log", `${req.url}\t${req.method}`, "reqLog.txt");
 
-fileOps();
+  const extension = path.extname(req.url);
 
-// fs.readFile(path.join(__dirname, "files", "starter.txt"), (err, data) => {
-//   if (err) throw err;
-//   console.log(data.toString());
-// });
+  let contentType;
 
-// console.log("Hello...");
+  switch (extension) {
+    case ".css":
+      contentType = "text/css";
+      break;
+    case ".js":
+      contentType = "text/javascript";
+      break;
+    case ".json":
+      contentType = "text/json";
+      break;
+    case ".jpg":
+      contentType = "image/jpeg";
+      break;
+    case ".png":
+      contentType = "image/png";
+      break;
+    case ".txt":
+      contentType = "text/plain";
+      break;
+    default:
+      contentType = "text/html";
+      break;
+  }
+  let filePath =
+    "text/html" && req.url === "/"
+      ? path.join(__dirname, "views", "index.html")
+      : contentType === "text/html" && req.url.slice(-1) === "/"
+      ? path.join(__dirname, "views", req.url, "index.html")
+      : contentType === "text/html"
+      ? path.join(__dirname, "views", req.url)
+      : path.join(__dirname, req.url);
 
-// fs.writeFile(
-//   path.join(__dirname, "files", "reply.txt"),
-//   "Nice to meet you.",
-//   (err) => {
-//     if (err) throw err;
-//     console.log("Write complete");
+  const fileExists = fs.existsSync(filePath);
 
-//     fs.appendFile(
-//       path.join(__dirname, "files", "reply.txt"),
-//       "\n\nYes it is.",
-//       (err) => {
-//         if (err) throw err;
-//         console.log("Append complete");
+  if (fileExists) {
+    // server the file
+    serveFile(filePath, contentType, res);
+  } else {
+    switch (path.parse(filePath).base) {
+      case "old-page.html":
+        res.writeHead(301, { Location: "/new-page.html" });
+        res.end();
+        break;
+      case "www-page.html":
+        res.writeHead(301, { Location: "/" }); //redirect
+        res.end();
+        break;
+      default:
+        serveFile(path.join(__dirname, "views", "404.html"), contentType, res);
+    }
+  }
+});
 
-//         fs.rename(
-//           path.join(__dirname, "files", "reply.txt"),
-//           path.join(__dirname, "files", "newReply.txt"),
-//           (err) => {
-//             if (err) throw err;
-//             console.log("Rename complete");
-//           }
-//         );
-//       }
-//     );
-//   }
-// );
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// add listener for the log event
+// myEmitter.on("log", (msg) => logEvents(msg));
 
-// process.on("uncaughtException", (err) => {
-//   console.log(`There was an uncaught error: ${err}`);
-//   process.exit(1);
-// });
-
-// console.log("Hello World");
-// console.log(global);
-
-// const os = require("os");
-// const path = require("path");
-// const math = require("./math");
-
-// console.log(math.add(2, 3));
-// console.log(math.subtract(2, 3));
-// console.log(math.multiply(2, 3));
-// console.log(math.divide(2, 3));
-
-// console.log(os.type());
-// console.log(os.version());
-// console.log(os.homedir());
-
-// console.log(__dirname);
-// console.log(__filename);
-
-// console.log(path.dirname(__filename));
-// console.log(path.basename(__filename));
-// console.log(path.extname(__filename));
-
-// console.log(path.parse(__filename));
+// //   myEmitter.emit("log", "Log event emitted!");
