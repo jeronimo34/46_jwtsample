@@ -1,1 +1,13 @@
-20220401	08:21:44	c8f46c49-970a-4d6b-ae90-f469935d59df	TypeError: fsPromises.readFie is not a function
+20220403	14:35:27	eddbc1ec-f376-404b-8760-a6ed01fca5ed	Error: Not allowed by CORS
+20220403	15:09:37	db8dba2e-2390-44ff-8abc-a6f40d8d658c	Error: ENOENT: no such file or directory, stat 'C:\workspace\01_Project\46_jwtsample\views\subdir\test.html'
+20220403	16:35:00	4519e77b-cba9-4661-bea7-f81fe804ca95	SyntaxError: Unexpected token i in JSON at position 1
+20220403	16:35:01	bc788405-bddd-4174-857f-8ca1f3050d74	SyntaxError: Unexpected token i in JSON at position 1
+20220403	16:35:06	a9047f3f-04ec-4b09-b093-8c145f4c1216	SyntaxError: Unexpected token i in JSON at position 1
+20220404	07:36:57	9d6f16c2-9286-4e0e-a86a-e9d823b98e8d	SyntaxError: Unexpected token u in JSON at position 6
+20220406	22:36:32	eb045379-4aa0-40ae-813f-5bf3fed91054	ReferenceError: user is not defined
+20220406	22:36:48	dcf23857-9d11-4dda-88b8-d3d7f9ab7df0	ReferenceError: user is not defined
+20220406	22:37:01	7f2ba52e-49b1-4283-93b4-9967e030d2b9	ReferenceError: user is not defined
+20220410	17:58:28	e8ac3e2f-e2e9-4e0e-a00b-3f7adc06341a	TypeError: Cannot read property 'username' of undefined
+20220410	18:06:07	db516ec0-36bc-42fe-a915-f978dbfb84bf	TypeError: req.roles.map is not a function
+20220410	18:08:12	ea3c25f9-88a7-4c22-8855-47d525ae3d93	TypeError: req.roles.map is not a function
+20220410	18:11:43	1973a2b1-19ae-4c92-a331-6216401c24bb	SyntaxError: Unexpected token f in JSON at position 35
